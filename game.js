@@ -715,30 +715,27 @@
             }
         }
 
-        // Gather button
-        const gatherBtn = document.getElementById("gather-btn");
-        gatherBtn.disabled = !canUnitHarvest(unit);
-
-        // Build Rock Hovel button
-        var buildBtn = document.getElementById("build-hovel-btn");
+        // Show/hide action buttons based on whether the action is available
         var hasStructureOnTile = getStructureAt(unit.row, unit.col) !== null;
-        buildBtn.disabled = state.resources.rocks < 10 || hasStructureOnTile;
+        var actions = [
+            ["gather-btn",         canUnitHarvest(unit)],
+            ["build-hovel-btn",    state.resources.rocks >= 10 && !hasStructureOnTile],
+            ["build-solar-btn",    canBuildSolarPanel()],
+            ["build-battery-btn",  canBuildSubparBattery()],
+            ["build-rocktimus-btn", canBuildRocktimus()],
+            ["build-comm-dish-btn", canBuildCommDish()]
+        ];
+        var anyVisible = false;
+        for (var i = 0; i < actions.length; i++) {
+            var btn = document.getElementById(actions[i][0]);
+            var enabled = actions[i][1];
+            btn.disabled = !enabled;
+            btn.style.display = enabled ? "" : "none";
+            if (enabled) anyVisible = true;
+        }
 
-        // Build Solar Panel button
-        var solarBtn = document.getElementById("build-solar-btn");
-        solarBtn.disabled = !canBuildSolarPanel();
-
-        // Build Subpar Battery button
-        var batteryBtn = document.getElementById("build-battery-btn");
-        batteryBtn.disabled = !canBuildSubparBattery();
-
-        // Build Rocktimus button
-        var rocktimusBtn = document.getElementById("build-rocktimus-btn");
-        rocktimusBtn.disabled = !canBuildRocktimus();
-
-        // Build Comm Dish button
-        var commDishBtn = document.getElementById("build-comm-dish-btn");
-        commDishBtn.disabled = !canBuildCommDish();
+        // No actions fallback message
+        document.getElementById("no-actions-msg").style.display = anyVisible ? "none" : "";
 
         // Call Earth button
         var callEarthBtn = document.getElementById("call-earth-btn");
