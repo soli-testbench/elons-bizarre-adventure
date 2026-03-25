@@ -47,6 +47,28 @@
                 <canvas id="game-canvas"></canvas>
             </div>
         </div>
+        <div id="hotkey-modal" class="hidden">
+            <div class="modal-backdrop"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Hotkeys</h2>
+                    <button id="close-hotkey-modal" class="modal-close">&times;</button>
+                </div>
+                <table class="hotkey-table">
+                    <thead><tr><th>Key</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <tr><td><kbd>W</kbd> / <kbd>Arrow Up</kbd></td><td>Move up</td></tr>
+                        <tr><td><kbd>S</kbd> / <kbd>Arrow Down</kbd></td><td>Move down</td></tr>
+                        <tr><td><kbd>A</kbd> / <kbd>Arrow Left</kbd></td><td>Move left</td></tr>
+                        <tr><td><kbd>D</kbd> / <kbd>Arrow Right</kbd></td><td>Move right</td></tr>
+                        <tr><td><kbd>G</kbd></td><td>Gather resource</td></tr>
+                        <tr><td><kbd>E</kbd> / <kbd>Enter</kbd></td><td>End turn</td></tr>
+                        <tr><td><kbd>ESC</kbd></td><td>Toggle this overlay</td></tr>
+                    </tbody>
+                </table>
+                <p class="modal-hint">Press <kbd>ESC</kbd> to close</p>
+            </div>
+        </div>
     </div>
     <script src="game.js"></script>
 </body>
