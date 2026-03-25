@@ -90,6 +90,7 @@
         marsThronePlaced: false,
         throneDialogOpen: false,
         throneDialogStep: 0,
+        introDialogOpen: true,
     };
 
     function refreshView() {
@@ -1759,6 +1760,7 @@
     }
 
     canvas.addEventListener("click", function (e) {
+        if (state.introDialogOpen) return;
         const tile = getTileFromClick(e);
         if (!tile) return;
 
@@ -1828,17 +1830,23 @@
     });
     document.getElementById("throne-dialog-btn").addEventListener("click", advanceThroneDialog);
     document.getElementById("close-hotkey-modal").addEventListener("click", toggleHotkeyModal);
+    document.getElementById("intro-dialog-btn").addEventListener("click", function () {
+        state.introDialogOpen = false;
+        document.getElementById("intro-dialog").classList.add("hidden");
+    });
 
     // Keyboard controls
     document.addEventListener("keydown", function (e) {
-        // Handle hotkey modal toggle
+        // Handle hotkey modal toggle (blocked while intro dialog is open)
         if (e.key === "Escape") {
             e.preventDefault();
+            if (state.introDialogOpen) return;
             toggleHotkeyModal();
             return;
         }
 
         // Block all game input while modal/dialog is open or game over
+        if (state.introDialogOpen) return;
         if (state.hotkeyModalOpen) return;
         if (state.callEarthDialogOpen) return;
         if (state.throneDialogOpen) return;
@@ -1933,6 +1941,7 @@
         state.callEarthDialogOpen = false;
         state.throneDialogOpen = false;
         state.throneDialogStep = 0;
+        state.introDialogOpen = true;
         state.selectedTile = state.map[elonUnit.row][elonUnit.col];
 
         // Schedule first dust storm within the first 10 turns
@@ -1941,6 +1950,7 @@
         resizeCanvas();
         addLog("Elon has crash-landed on Mars!", "turn");
         addLog("--- Turn 1 ---", "turn");
+        document.getElementById("intro-dialog").classList.remove("hidden");
         refreshView();
     }
 

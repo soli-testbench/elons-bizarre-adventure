@@ -420,3 +420,44 @@ kbd {
     background: linear-gradient(135deg, #8a2dd0, #6a0dad);
     transform: scale(1.05);
 }
+
+/* --------------- Intro Dialog --------------- */
+#intro-dialog {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#intro-dialog.hidden {
+    display: none;
+}
+
+.intro-dialog-msg {
+    font-size: 0.95rem;
+    color: #e0d0c0;
+    text-align: center;
+    padding: 6px 0;
+    line-height: 1.5;
+}
+
+.intro-dialog-action-btn {
+    display: block;
+    margin: 12px auto 0;
+    background: linear-gradient(135deg, #cc5500, #aa3300);
+    color: #fff;
+    border: 1px solid #ff8844;
+    padding: 10px 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.intro-dialog-action-btn:hover {
+    background: linear-gradient(135deg, #dd6611, #bb4411);
+    transform: scale(1.05);
+}
