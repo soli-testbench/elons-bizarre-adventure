@@ -1,0 +1,147 @@
+{
+  "quality": "full",
+  "tasks": [
+    {
+      "id": "hotkey-modal",
+      "title": "Add ESC-toggled hotkey overlay modal",
+      "description": "Implement a modal/overlay that lists all game hotkeys, toggled by ESC. The modal blocks all game input (keyboard and mouse) while open. Changes span index.html (modal markup), style.css (modal styles), and game.js (toggle logic and input blocking).",
+      "acceptance_criteria": "1. Pressing ESC opens a styled modal listing all game hotkeys with descriptions.\n2. Pressing ESC again or clicking a close button dismisses the modal.\n3. Game input (movement, gathering, turn advance, canvas clicks, sidebar buttons) is blocked while the modal is open.\n4. The modal is visually consistent with the existing Mars HUD theme (uses colors, fonts, and patterns from style.css).\n5. All hotkeys in the keydown handler are represented in the overlay, including the new ESC key.",
+      "claudeMd": "# Hotkey Modal Implementation\n\nYou are adding an ESC-toggled hotkey overlay to a vanilla HTML/CSS/JS Mars colony strategy game.\n\n## Project Structure\n\n- `index.html` — game page with sidebar and canvas\n- `style.css` — Mars-themed dark UI styles\n- `game.js` — single IIFE containing all game logic, state, and rendering\n\nThere is NO build system, NO framework, NO package manager. Work directly with the three files.\n\n## What to Implement\n\n### 1. `index.html` — Add modal markup\n\nAdd a `<div id=\"hotkey-modal\" class=\"hidden\">` as a direct child of `#app` (after `#game-container`). Structure:\n\n```html\n<div id=\"hotkey-modal\" class=\"hidden\">\n  <div class=\"modal-backdrop\"></div>\n  <div class=\"modal-content\">\n    <div class=\"modal-header\">\n      <h2>Hotkeys</h2>\n      <button id=\"close-hotkey-modal\" class=\"modal-close\">&times;</button>\n    </div>\n    <table class=\"hotkey-table\">\n      <thead><tr><th>Key</th><th>Action</th></tr></thead>\n      <tbody>\n        <tr><td><kbd>W</kbd> / <kbd>Arrow Up</kbd></td><td>Move up</td></tr>\n        <tr><td><kbd>S</kbd> / <kbd>Arrow Down</kbd></td><td>Move down</td></tr>\n        <tr><td><kbd>A</kbd> / <kbd>Arrow Left</kbd></td><td>Move left</td></tr>\n        <tr><td><kbd>D</kbd> / <kbd>Arrow Right</kbd></td><td>Move right</td></tr>\n        <tr><td><kbd>G</kbd></td><td>Gather resource</td></tr>\n        <tr><td><kbd>E</kbd> / <kbd>Enter</kbd></td><td>End turn</td></tr>\n        <tr><td><kbd>ESC</kbd></td><td>Toggle this overlay</td></tr>\n      </tbody>\n    </table>\n    <p class=\"modal-hint\">Press <kbd>ESC</kbd> to close</p>\n  </div>\n</div>\n```\n\n### 2. `style.css` — Add modal styles\n\nMatch the existing Mars HUD theme exactly. Key colors from existing code:\n- Background dark: `#1a0a0a`, `#2a1515`\n- Panel border: `#3a2020`\n- Heading orange: `#cc7744`\n- Accent orange: `#ff8844`\n- Text warm beige: `#e0d0c0`\n- Muted text: `#aa9988`\n- Button gradient: `linear-gradient(135deg, #cc5500, #aa3300)`\n\nRequired styles:\n- `#hotkey-modal` — fixed fullscreen container, z-index above everything, flexbox centered\n- `#hotkey-modal.hidden` — `display: none`\n- `.modal-backdrop` — absolute fill, `background: rgba(0, 0, 0, 0.7)`\n- `.modal-content` — panel-like box (`background: #2a1515`, `border: 1px solid #3a2020`, `border-radius: 6px`, `padding: 20px`), `max-width: 420px`, `position: relative`, `z-index: 1`\n- `.modal-header` — flex row with space-between, border-bottom matching `.panel h2` style\n- `.modal-close` — minimal button, `color: #aa9988`, no background/border, hover `#ff8844`\n- `.hotkey-table` — full width, `border-collapse: collapse`\n- `.hotkey-table th` — `color: #cc7744`, uppercase, small font, letter-spacing\n- `.hotkey-table td` — padding, `border-bottom: 1px solid #3a2020`\n- `kbd` — inline key styling: `background: #1a0a0a`, `border: 1px solid #3a2020`, `border-radius: 3px`, `padding: 1px 6px`, `font-family: monospace`, `color: #ff8844`, `font-size: 0.85rem`\n- `.modal-hint` — centered, muted color, small font\n\n### 3. `game.js` — Toggle logic and input blocking\n\nAll code is inside a single IIFE `(function() { ... })()`. You must work within it.\n\n**State**: Add `hotkeyModalOpen: false` to the `state` object (line ~37).\n\n**Toggle function**: Add after the `endTurn` function (around line 301):\n```js\nfunction toggleHotkeyModal() {\n    state.hotkeyModalOpen = !state.hotkeyModalOpen;\n    const modal = document.getElementById('hotkey-modal');\n    if (state.hotkeyModalOpen) {\n        modal.classList.remove('hidden');\n    } else {\n        modal.classList.add('hidden');\n    }\n}\n```\n\n**Keydown handler modification** (line 339): Add modal check at the top of the handler, before the switch:\n```js\ndocument.addEventListener('keydown', function (e) {\n    // Handle hotkey modal toggle\n    if (e.key === 'Escape') {\n        e.preventDefault();\n        toggleHotkeyModal();\n        return;\n    }\n\n    // Block all game input while modal is open\n    if (state.hotkeyModalOpen) return;\n\n    const unit = state.unit;\n    // ... rest of existing switch\n});\n```\n\n**Close button handler**: Add after the gather-btn listener (around line 336):\n```js\ndocument.getElementById('close-hotkey-modal').addEventListener('click', function () {\n    if (state.hotkeyModalOpen) toggleHotkeyModal();\n});\n```\n\n## Conventions to Follow\n\n- The game uses `\"use strict\"` inside the IIFE\n- DOM queries use `document.getElementById()` — no querySelector\n- Event listeners use `addEventListener` with anonymous functions\n- CSS uses plain selectors, no BEM or utility classes\n- Indentation: 4 spaces in JS, 4 spaces in CSS\n- No semicolons are missing — the codebase uses them consistently\n- HTML indentation: 4 spaces\n\n## Gotchas\n\n- The IIFE wraps everything — new functions must be declared inside it, not outside\n- The `switch` in the keydown handler has `default: return` — ESC handling must go BEFORE the switch, not as a case in it, because the modal-open check needs to short-circuit all other keys\n- The modal overlay must cover the full viewport to block canvas clicks and sidebar button clicks — use `position: fixed; inset: 0`\n- The Dockerfile copies these three files to nginx — no changes needed there\n- Do NOT modify `.github/workflows/` — the agent lacks workflow scope",
+      "checklist": [
+        {
+          "id": "t1",
+          "description": "Add hotkey modal HTML markup to index.html",
+          "steps": [
+            "Add a `<div id=\"hotkey-modal\" class=\"hidden\">` after `#game-container` inside `#app`",
+            "Include backdrop div, modal-content div with header (h2 + close button), hotkey table with all 7 keybindings, and hint paragraph",
+            "Verify the HTML is well-formed and the modal is a sibling of #game-container"
+          ],
+          "passes": false
+        },
+        {
+          "id": "t2",
+          "description": "Add modal CSS styles to style.css matching Mars HUD theme",
+          "steps": [
+            "Add styles for #hotkey-modal (fixed fullscreen, z-index, flex centering), .hidden, .modal-backdrop, .modal-content, .modal-header, .modal-close, .hotkey-table, kbd, .modal-hint",
+            "Use existing color palette: #2a1515 background, #3a2020 borders, #cc7744 headings, #ff8844 accents, #e0d0c0 text",
+            "Verify modal visually overlays the entire viewport when shown"
+          ],
+          "passes": false
+        },
+        {
+          "id": "t3",
+          "description": "Add hotkeyModalOpen state and toggleHotkeyModal function in game.js",
+          "steps": [
+            "Add `hotkeyModalOpen: false` to the state object",
+            "Add `toggleHotkeyModal()` function that flips state and toggles .hidden class on #hotkey-modal",
+            "Verify function is declared inside the IIFE scope"
+          ],
+          "passes": false
+        },
+        {
+          "id": "t4",
+          "description": "Modify keydown handler to support ESC toggle and block input when modal is open",
+          "steps": [
+            "Add ESC key check before the existing switch statement that calls toggleHotkeyModal()",
+            "Add early return when state.hotkeyModalOpen is true (blocks W/A/S/D, G, E, Enter, arrows)",
+            "Verify that pressing ESC opens the modal and pressing ESC again closes it",
+            "Verify that movement/gather/turn-advance keys do nothing while modal is open"
+          ],
+          "passes": false
+        },
+        {
+          "id": "t5",
+          "description": "Wire up close button click handler",
+          "steps": [
+            "Add click event listener on #close-hotkey-modal that calls toggleHotkeyModal when modal is open",
+            "Verify clicking the X button dismisses the modal"
+          ],
+          "passes": false
+        }
+      ],
+      "quality_checklist": [
+        {
+          "id": "q1",
+          "description": "Modal styles use only existing color palette values — no new colors introduced",
+          "steps": [
+            "Review all color values in the new CSS rules",
+            "Confirm each color exists in the original style.css or is a standard rgba transparency variant of an existing color"
+          ],
+          "passes": false
+        },
+        {
+          "id": "q2",
+          "description": "No game logic is duplicated or broken — existing keydown switch cases unchanged",
+          "steps": [
+            "Verify the original switch cases for W/A/S/D, arrows, G, E, Enter are unmodified",
+            "Verify no game functions (moveUnit, gatherResource, endTurn) were changed",
+            "Verify the ESC handling and modal check are additions only, not replacements"
+          ],
+          "passes": false
+        },
+        {
+          "id": "q3",
+          "description": "All 7 hotkeys are listed in the modal table with correct descriptions",
+          "steps": [
+            "Count the table rows: should be 7 (W/Up, S/Down, A/Left, D/Right, G, E/Enter, ESC)",
+            "Verify each description matches the actual game behavior"
+          ],
+          "passes": false
+        },
+        {
+          "id": "q4",
+          "description": "Modal fully blocks pointer and keyboard input to the game",
+          "steps": [
+            "Confirm the overlay uses position:fixed with inset:0 or equivalent to cover entire viewport",
+            "Confirm the keydown handler returns early for non-ESC keys when modal is open",
+            "Confirm no z-index issues that would let clicks pass through"
+          ],
+          "passes": false
+        }
+      ]
+    }
+  ],
+  "integration": null,
+  "verification": {
+    "buildCommand": "echo 'No build step — static files'",
+    "runCommand": "cd /home/user/workspace-9df12781-planner-22c9e62c && python3 -m http.server 3000",
+    "readySignal": "Serving HTTP",
+    "appType": "web",
+    "port": 3000,
+    "checks": [
+      {
+        "id": "v1",
+        "description": "ESC opens hotkey modal with all keybindings listed",
+        "steps": [
+          "Open http://localhost:3000 in a browser",
+          "Press ESC key",
+          "Verify a modal overlay appears listing all 7 hotkeys (W/Up, S/Down, A/Left, D/Right, G, E/Enter, ESC) with descriptions",
+          "Verify the modal matches the dark Mars HUD theme"
+        ],
+        "passes": false
+      },
+      {
+        "id": "v2",
+        "description": "ESC again or close button dismisses the modal",
+        "steps": [
+          "With the modal open, press ESC",
+          "Verify the modal closes and game is visible again",
+          "Open the modal again with ESC, then click the X close button",
+          "Verify the modal closes"
+        ],
+        "passes": false
+      },
+      {
+        "id": "v3",
+        "description": "Game input is blocked while modal is open",
+        "steps": [
+          "Open the modal with ESC",
+          "Press W, A, S, D, G, E, Enter, arrow keys",
+          "Verify the unit does not move, no resources gathered, no turn advanced",
+          "Close the modal and verify keys work again"
+        ],
+        "passes": false
+      }
+    ]
+  }
+}
