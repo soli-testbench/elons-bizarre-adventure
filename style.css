@@ -196,3 +196,106 @@ header .subtitle {
     display: block;
     cursor: pointer;
 }
+
+/* --------------- Hotkey Modal --------------- */
+#hotkey-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#hotkey-modal.hidden {
+    display: none;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+    background: #2a1515;
+    border: 1px solid #3a2020;
+    border-radius: 6px;
+    padding: 20px;
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+    z-index: 1;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #3a2020;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.modal-header h2 {
+    font-size: 0.85rem;
+    color: #cc7744;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+    border: none;
+    padding: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #aa9988;
+    font-size: 1.4rem;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    color: #ff8844;
+}
+
+.hotkey-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.hotkey-table th {
+    color: #cc7744;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-align: left;
+    padding: 6px 8px;
+    border-bottom: 1px solid #3a2020;
+}
+
+.hotkey-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #3a2020;
+    font-size: 0.85rem;
+}
+
+kbd {
+    background: #1a0a0a;
+    border: 1px solid #3a2020;
+    border-radius: 3px;
+    padding: 1px 6px;
+    font-family: monospace;
+    color: #ff8844;
+    font-size: 0.85rem;
+}
+
+.modal-hint {
+    text-align: center;
+    color: #aa9988;
+    font-size: 0.75rem;
+    margin-top: 12px;
+    margin-bottom: 0;
+}

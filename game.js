@@ -34,6 +34,7 @@
         resources: { rocks: 0 },
         selectedTile: null,
         logs: [],
+        hotkeyModalOpen: false,
     };
 
     // --------------- Map Generation ---------------
@@ -300,6 +301,16 @@
         updateUI();
     }
 
+    function toggleHotkeyModal() {
+        state.hotkeyModalOpen = !state.hotkeyModalOpen;
+        var modal = document.getElementById('hotkey-modal');
+        if (state.hotkeyModalOpen) {
+            modal.classList.remove('hidden');
+        } else {
+            modal.classList.add('hidden');
+        }
+    }
+
     // --------------- Input Handling ---------------
     function getTileFromClick(e) {
         const rect = canvas.getBoundingClientRect();
@@ -334,9 +345,22 @@
 
     document.getElementById("end-turn-btn").addEventListener("click", endTurn);
     document.getElementById("gather-btn").addEventListener("click", gatherResource);
+    document.getElementById("close-hotkey-modal").addEventListener("click", function () {
+        if (state.hotkeyModalOpen) toggleHotkeyModal();
+    });
 
     // Keyboard controls
     document.addEventListener("keydown", function (e) {
+        // Handle hotkey modal toggle
+        if (e.key === 'Escape') {
+            e.preventDefault();
+            toggleHotkeyModal();
+            return;
+        }
+
+        // Block all game input while modal is open
+        if (state.hotkeyModalOpen) return;
+
         const unit = state.unit;
         let dr = 0;
         let dc = 0;
