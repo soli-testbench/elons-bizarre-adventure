@@ -16,7 +16,7 @@
             "Include backdrop div, modal-content div with header (h2 + close button), hotkey table with all 7 keybindings, and hint paragraph",
             "Verify the HTML is well-formed and the modal is a sibling of #game-container"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "t2",
@@ -26,7 +26,7 @@
             "Use existing color palette: #2a1515 background, #3a2020 borders, #cc7744 headings, #ff8844 accents, #e0d0c0 text",
             "Verify modal visually overlays the entire viewport when shown"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "t3",
@@ -36,7 +36,7 @@
             "Add `toggleHotkeyModal()` function that flips state and toggles .hidden class on #hotkey-modal",
             "Verify function is declared inside the IIFE scope"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "t4",
@@ -47,7 +47,7 @@
             "Verify that pressing ESC opens the modal and pressing ESC again closes it",
             "Verify that movement/gather/turn-advance keys do nothing while modal is open"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "t5",
@@ -56,7 +56,7 @@
             "Add click event listener on #close-hotkey-modal that calls toggleHotkeyModal when modal is open",
             "Verify clicking the X button dismisses the modal"
           ],
-          "passes": false
+          "passes": true
         }
       ],
       "quality_checklist": [
@@ -67,7 +67,7 @@
             "Review all color values in the new CSS rules",
             "Confirm each color exists in the original style.css or is a standard rgba transparency variant of an existing color"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "q2",
@@ -77,7 +77,7 @@
             "Verify no game functions (moveUnit, gatherResource, endTurn) were changed",
             "Verify the ESC handling and modal check are additions only, not replacements"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "q3",
@@ -86,7 +86,7 @@
             "Count the table rows: should be 7 (W/Up, S/Down, A/Left, D/Right, G, E/Enter, ESC)",
             "Verify each description matches the actual game behavior"
           ],
-          "passes": false
+          "passes": true
         },
         {
           "id": "q4",
@@ -96,7 +96,7 @@
             "Confirm the keydown handler returns early for non-ESC keys when modal is open",
             "Confirm no z-index issues that would let clicks pass through"
           ],
-          "passes": false
+          "passes": true
         }
       ]
     }
