@@ -37,7 +37,7 @@
         map: [],
         unit: null,
         turn: 1,
-        resources: { rocks: 0, energy: 0 },
+        resources: { rocks: 0 },
         structures: [],
         robots: [],
         dustStorms: [],
@@ -474,7 +474,7 @@
         document.getElementById("moves-left").textContent = state.unit.movesLeft;
         document.getElementById("moves-max").textContent = state.unit.movesMax;
         document.getElementById("rocks-count").textContent = state.resources.rocks;
-        document.getElementById("energy-count").textContent = state.resources.energy;
+        document.getElementById("energy-count").textContent = getTotalHovelEnergy();
 
         // Gather button
         const gatherBtn = document.getElementById("gather-btn");
@@ -684,29 +684,69 @@
 
     function canBuildSubparBattery() {
         var unit = state.unit;
-        if (state.resources.energy < 2 || state.resources.rocks < 2) return false;
-        if (getStructureAt(unit.row, unit.col) !== null) return false;
-        var adjPanels = getAdjacentStructures(unit.row, unit.col, "solar_panel");
-        var adjHovels = getAdjacentStructures(unit.row, unit.col, "rock_hovel");
-        return adjPanels.length > 0 || adjHovels.length > 0;
+        if (state.resources.rocks < 2) return false;
+        // Unit must be standing in a Rock Hovel with enough energy
+        var hovel = getStructureAt(unit.row, unit.col);
+        if (!hovel || hovel.type !== "rock_hovel") return false;
+        if (hovel.energy < 2) return false;
+        // Must have at least one adjacent empty tile to place the battery
+        for (var dr = -1; dr <= 1; dr++) {
+            for (var dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                var nr = unit.row + dr;
+                var nc = unit.col + dc;
+                if (nr < 0 || nr >= MAP_ROWS || nc < 0 || nc >= MAP_COLS) continue;
+                if (getStructureAt(nr, nc) === null) return true;
+            }
+        }
+        return false;
     }
 
     function buildSubparBattery() {
         if (!canBuildSubparBattery()) return;
         var unit = state.unit;
+        var hovel = getStructureAt(unit.row, unit.col);
 
-        state.resources.energy -= 2;
+        // Find an adjacent empty tile to place the battery
+        var targetRow = -1, targetCol = -1;
+        for (var dr = -1; dr <= 1; dr++) {
+            for (var dc = -1; dc <= 1; dc++) {
+                if (dr === 0 && dc === 0) continue;
+                var nr = unit.row + dr;
+                var nc = unit.col + dc;
+                if (nr < 0 || nr >= MAP_ROWS || nc < 0 || nc >= MAP_COLS) continue;
+                if (getStructureAt(nr, nc) === null) {
+                    targetRow = nr;
+                    targetCol = nc;
+                    break;
+                }
+            }
+            if (targetRow >= 0) break;
+        }
+        if (targetRow < 0) return;
+
+        hovel.energy -= 2;
         state.resources.rocks -= 2;
         state.structures.push({
             type: "subpar_battery",
-            row: unit.row,
-            col: unit.col,
+            row: targetRow,
+            col: targetCol,
         });
 
-        addLog("Elon built a Subpar Battery at (" + unit.col + ", " + unit.row + ")", "build");
+        addLog("Built a Subpar Battery at (" + targetCol + ", " + targetRow + ")", "build");
 
         render();
         updateUI();
+    }
+
+    function getTotalHovelEnergy() {
+        var total = 0;
+        for (var i = 0; i < state.structures.length; i++) {
+            if (state.structures[i].type === "rock_hovel") {
+                total += state.structures[i].energy;
+            }
+        }
+        return total;
     }
 
     function processSolarPanels() {
@@ -721,7 +761,6 @@
                 for (var j = 0; j < hovels.length; j++) {
                     if (hovels[j].energy < getHovelCapacity(hovels[j])) {
                         hovels[j].energy++;
-                        state.resources.energy++;
                         totalGenerated++;
                         break;
                     }
@@ -729,7 +768,7 @@
             }
         }
         if (totalGenerated > 0) {
-            addLog("Solar Panels generated " + totalGenerated + " Energy! (Total: " + state.resources.energy + ")", "energy");
+            addLog("Solar Panels generated " + totalGenerated + " Energy! (Total: " + getTotalHovelEnergy() + ")", "energy");
         }
     }
 
@@ -904,7 +943,6 @@
                 if (h.type !== "rock_hovel") continue;
                 var cap = getHovelCapacity(h);
                 if (h.energy > cap) {
-                    state.resources.energy -= (h.energy - cap);
                     h.energy = cap;
                 }
             }
@@ -1065,7 +1103,7 @@
         state.map = generateMap();
         state.unit = placeUnit(state.map);
         state.turn = 1;
-        state.resources = { rocks: 0, energy: 0 };
+        state.resources = { rocks: 0 };
         state.structures = [];
         state.robots = [];
         state.dustStorms = [];
