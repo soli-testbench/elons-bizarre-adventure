@@ -106,3 +106,10 @@
 - **Resolution**: Kept both sides in all cases — added both button listeners in game.js, both buttons in index.html, all CSS from both sides in style.css, kept greenhouse code from HEAD in second game.js conflict
 - **Tests run**: yes — node --check game.js passed
 - **Outcome**: success
+
+## conflict-resolver — 2026-03-26T21:19:28Z
+
+- **Conflict**: .agent-compose/current and .agent-compose/AGENT_HISTORY.md — agent artifact files only, no code conflicts
+- **Resolution**: Accepted theirs for both agent artifact files
+- **Tests run**: no — no code conflicts, skipped per instructions
+- **Outcome**: success
