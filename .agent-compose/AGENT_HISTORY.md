@@ -1,5 +1,5 @@
 ## implementer/main — 2026-03-26T23:30:00Z
-- **Items completed**: t1, t2, t3, q1, v1
+- **Items completed**: t1, t2, q1
 - **Tests run**: yes — node --check game.js passed
 - **Outcome**: success
 
@@ -161,6 +161,13 @@
 ## conflict-resolver — 2026-03-26T21:19:28Z
 
 - **Conflict**: .agent-compose/current and .agent-compose/AGENT_HISTORY.md — agent artifact files only, no code conflicts
+- **Resolution**: Accepted theirs for both agent artifact files
+- **Tests run**: no — no code conflicts, skipped per instructions
+- **Outcome**: success
+
+## conflict-resolver — 2026-03-26T23:31:16Z
+
+- **Conflict**: .agent-compose/current (1 region), .agent-compose/AGENT_HISTORY.md (1 region) — agent artifact files only, no code conflicts
 - **Resolution**: Accepted theirs for both agent artifact files
 - **Tests run**: no — no code conflicts, skipped per instructions
 - **Outcome**: success
