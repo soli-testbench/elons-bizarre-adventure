@@ -1379,9 +1379,6 @@
         state.marsThronePlaced = true;
         addLog(unit.name + " built the Mars Throne at (" + openTile.col + ", " + openTile.row + ")", "build");
         addLog("Elon has claimed Mars. Long live the King of Mars.", "victory");
-        state.gameOver = true;
-        state.throneDialogOpen = true;
-        document.getElementById("throne-dialog").classList.remove("hidden");
         refreshView();
     }
 
