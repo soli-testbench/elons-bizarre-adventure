@@ -91,6 +91,7 @@
         throneDialogOpen: false,
         throneDialogStep: 0,
         introDialogOpen: true,
+        introAnimationPlaying: false,
     };
 
     function refreshView() {
@@ -1760,6 +1761,7 @@
     }
 
     canvas.addEventListener("click", function (e) {
+        if (state.introAnimationPlaying) return;
         if (state.introDialogOpen) return;
         const tile = getTileFromClick(e);
         if (!tile) return;
@@ -1840,12 +1842,14 @@
         // Handle hotkey modal toggle (blocked while intro dialog is open)
         if (e.key === "Escape") {
             e.preventDefault();
+            if (state.introAnimationPlaying) return;
             if (state.introDialogOpen) return;
             toggleHotkeyModal();
             return;
         }
 
         // Block all game input while modal/dialog is open or game over
+        if (state.introAnimationPlaying) return;
         if (state.introDialogOpen) return;
         if (state.hotkeyModalOpen) return;
         if (state.callEarthDialogOpen) return;
@@ -1920,6 +1924,296 @@
         moveUnit(unit.row + dr, unit.col + dc);
     });
 
+    // --------------- Intro Crash Animation ---------------
+    function playIntroAnimation(onComplete) {
+        state.introAnimationPlaying = true;
+        // Hide intro dialog during animation
+        document.getElementById("intro-dialog").classList.add("hidden");
+
+        var canvasW = canvas.width;
+        var canvasH = canvas.height;
+        var surfaceY = canvasH * 0.7; // Mars surface line
+
+        // Animation timing
+        var totalDuration = 3500; // ms
+        var descentEnd = 2200;    // rocket finishes descent
+        var crashStart = 2200;
+        var crashEnd = 3500;
+
+        // Rocket properties
+        var rocketW = 20;
+        var rocketH = 50;
+        var rocketX = canvasW * 0.5;
+        var rocketStartY = -rocketH;
+        var rocketEndY = surfaceY - rocketH * 0.4;
+
+        // Debris particles
+        var particles = [];
+        var particlesSpawned = false;
+
+        var startTime = null;
+
+        function easeInQuad(t) {
+            return t * t;
+        }
+
+        function spawnParticles() {
+            for (var i = 0; i < 40; i++) {
+                var angle = Math.random() * Math.PI; // upward hemisphere
+                var speed = 1.5 + Math.random() * 4;
+                particles.push({
+                    x: rocketX + (Math.random() - 0.5) * 30,
+                    y: surfaceY,
+                    vx: Math.cos(angle) * speed * (Math.random() > 0.5 ? 1 : -1),
+                    vy: -Math.sin(angle) * speed,
+                    radius: 2 + Math.random() * 5,
+                    color: ["#c2956a", "#8B4513", "#d4a574", "#a07040", "#e8c89e"][Math.floor(Math.random() * 5)],
+                    alpha: 1,
+                });
+            }
+        }
+
+        function drawStars() {
+            // Deterministic star field
+            var seed = 42;
+            for (var i = 0; i < 80; i++) {
+                seed = (seed * 16807 + 0) % 2147483647;
+                var sx = (seed / 2147483647) * canvasW;
+                seed = (seed * 16807 + 0) % 2147483647;
+                var sy = (seed / 2147483647) * (surfaceY - 20);
+                seed = (seed * 16807 + 0) % 2147483647;
+                var sr = 0.5 + (seed / 2147483647) * 1.5;
+                ctx.fillStyle = "rgba(255,255,255," + (0.4 + (seed / 2147483647) * 0.6) + ")";
+                ctx.beginPath();
+                ctx.arc(sx, sy, sr, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawMarsSurface() {
+            // Sky gradient
+            var skyGrad = ctx.createLinearGradient(0, 0, 0, surfaceY);
+            skyGrad.addColorStop(0, "#0a0205");
+            skyGrad.addColorStop(0.6, "#1a0808");
+            skyGrad.addColorStop(1, "#3a1510");
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, canvasW, surfaceY);
+
+            drawStars();
+
+            // Ground gradient
+            var gndGrad = ctx.createLinearGradient(0, surfaceY, 0, canvasH);
+            gndGrad.addColorStop(0, "#8B4513");
+            gndGrad.addColorStop(0.3, "#7A3B10");
+            gndGrad.addColorStop(1, "#5a2a08");
+            ctx.fillStyle = gndGrad;
+            ctx.fillRect(0, surfaceY, canvasW, canvasH - surfaceY);
+
+            // Surface detail — rocky bumps
+            ctx.fillStyle = "#6b3810";
+            for (var i = 0; i < canvasW; i += 60) {
+                ctx.beginPath();
+                ctx.arc(i + 30, surfaceY, 8 + (i % 3) * 3, Math.PI, 0);
+                ctx.fill();
+            }
+
+            // Surface line
+            ctx.strokeStyle = "#a0522d";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, surfaceY);
+            ctx.lineTo(canvasW, surfaceY);
+            ctx.stroke();
+        }
+
+        function drawRocket(rx, ry, tilt) {
+            ctx.save();
+            ctx.translate(rx, ry + rocketH / 2);
+            ctx.rotate(tilt);
+
+            // Flame (during descent)
+            if (ry < rocketEndY) {
+                var flameLen = 15 + Math.random() * 10;
+                ctx.fillStyle = "#ff6622";
+                ctx.beginPath();
+                ctx.moveTo(-6, rocketH / 2);
+                ctx.lineTo(6, rocketH / 2);
+                ctx.lineTo(0, rocketH / 2 + flameLen);
+                ctx.closePath();
+                ctx.fill();
+                ctx.fillStyle = "#ffcc00";
+                ctx.beginPath();
+                ctx.moveTo(-3, rocketH / 2);
+                ctx.lineTo(3, rocketH / 2);
+                ctx.lineTo(0, rocketH / 2 + flameLen * 0.6);
+                ctx.closePath();
+                ctx.fill();
+            }
+
+            // Body
+            ctx.fillStyle = "#d0d0d0";
+            ctx.fillRect(-rocketW / 2, -rocketH / 2, rocketW, rocketH);
+
+            // Nose cone
+            ctx.fillStyle = "#cc3300";
+            ctx.beginPath();
+            ctx.moveTo(-rocketW / 2, -rocketH / 2);
+            ctx.lineTo(rocketW / 2, -rocketH / 2);
+            ctx.lineTo(0, -rocketH / 2 - 15);
+            ctx.closePath();
+            ctx.fill();
+
+            // Window
+            ctx.fillStyle = "#44aaff";
+            ctx.beginPath();
+            ctx.arc(0, -rocketH / 4, 5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#2266aa";
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Fins
+            ctx.fillStyle = "#cc3300";
+            ctx.beginPath();
+            ctx.moveTo(-rocketW / 2, rocketH / 2);
+            ctx.lineTo(-rocketW / 2 - 8, rocketH / 2 + 5);
+            ctx.lineTo(-rocketW / 2, rocketH / 2 - 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(rocketW / 2, rocketH / 2);
+            ctx.lineTo(rocketW / 2 + 8, rocketH / 2 + 5);
+            ctx.lineTo(rocketW / 2, rocketH / 2 - 10);
+            ctx.closePath();
+            ctx.fill();
+
+            // Body stripe
+            ctx.fillStyle = "#999";
+            ctx.fillRect(-rocketW / 2, 0, rocketW, 3);
+
+            ctx.restore();
+        }
+
+        function drawDustCloud(progress) {
+            // Expanding dust cloud at impact point
+            var maxRadius = 120;
+            var radius = maxRadius * Math.min(progress * 1.5, 1);
+            var alpha = Math.max(0, 1 - progress);
+
+            // Multiple layered circles for cloud effect
+            var offsets = [
+                { dx: 0, dy: 0, rMul: 1, color: "#c2956a" },
+                { dx: -25, dy: -5, rMul: 0.7, color: "#a07040" },
+                { dx: 25, dy: -8, rMul: 0.65, color: "#b08050" },
+                { dx: -10, dy: -15, rMul: 0.5, color: "#d4a574" },
+                { dx: 15, dy: -12, rMul: 0.55, color: "#c29060" },
+            ];
+            for (var i = 0; i < offsets.length; i++) {
+                var o = offsets[i];
+                ctx.fillStyle = o.color;
+                ctx.globalAlpha = alpha * 0.6;
+                ctx.beginPath();
+                ctx.arc(rocketX + o.dx, surfaceY + o.dy, radius * o.rMul, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        function animFrame(timestamp) {
+            if (!startTime) startTime = timestamp;
+            var elapsed = timestamp - startTime;
+            if (elapsed > totalDuration) elapsed = totalDuration;
+
+            ctx.clearRect(0, 0, canvasW, canvasH);
+
+            drawMarsSurface();
+
+            // Descent phase
+            var rocketY;
+            var tilt = 0.15; // slight tilt during descent
+            if (elapsed <= descentEnd) {
+                var t = elapsed / descentEnd;
+                var eased = easeInQuad(t);
+                rocketY = rocketStartY + (rocketEndY - rocketStartY) * eased;
+                // Increase tilt near impact
+                tilt = 0.15 + 0.1 * eased;
+            } else {
+                rocketY = rocketEndY;
+                tilt = 0.25;
+            }
+
+            // Crash phase
+            if (elapsed >= crashStart) {
+                if (!particlesSpawned) {
+                    spawnParticles();
+                    particlesSpawned = true;
+                }
+
+                var crashProgress = (elapsed - crashStart) / (crashEnd - crashStart);
+
+                // Draw dust cloud
+                drawDustCloud(crashProgress);
+
+                // Update and draw particles
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.08; // gravity
+                    p.alpha = Math.max(0, 1 - crashProgress);
+                    ctx.fillStyle = p.color;
+                    ctx.globalAlpha = p.alpha;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+
+                // Screen shake effect
+                var shakeIntensity = Math.max(0, 6 * (1 - crashProgress * 2));
+                if (shakeIntensity > 0) {
+                    canvas.style.transform = "translate(" +
+                        ((Math.random() - 0.5) * shakeIntensity) + "px," +
+                        ((Math.random() - 0.5) * shakeIntensity) + "px)";
+                } else {
+                    canvas.style.transform = "";
+                }
+
+                // Rocket sinks into ground slightly during crash
+                rocketY = rocketEndY + 5 * crashProgress;
+            }
+
+            // Draw rocket (hidden late in crash by dust)
+            if (elapsed < crashEnd - 200) {
+                drawRocket(rocketX, rocketY, tilt);
+            } else {
+                // Fade rocket out behind dust
+                var fadeAlpha = Math.max(0, 1 - ((elapsed - (crashEnd - 600)) / 400));
+                ctx.globalAlpha = fadeAlpha;
+                drawRocket(rocketX, rocketY, tilt);
+                ctx.globalAlpha = 1;
+            }
+
+            // Fade to black at very end
+            if (elapsed > totalDuration - 500) {
+                var fadeProgress = (elapsed - (totalDuration - 500)) / 500;
+                ctx.fillStyle = "rgba(0,0,0," + fadeProgress + ")";
+                ctx.fillRect(0, 0, canvasW, canvasH);
+            }
+
+            if (elapsed < totalDuration) {
+                requestAnimationFrame(animFrame);
+            } else {
+                // Clean up
+                canvas.style.transform = "";
+                state.introAnimationPlaying = false;
+                onComplete();
+            }
+        }
+
+        requestAnimationFrame(animFrame);
+    }
+
     // --------------- Initialization ---------------
     function init() {
         state.map = generateMap();
@@ -1950,8 +2244,16 @@
         resizeCanvas();
         addLog("Elon has crash-landed on Mars!", "turn");
         addLog("--- Turn 1 ---", "turn");
-        document.getElementById("intro-dialog").classList.remove("hidden");
-        refreshView();
+
+        // Hide intro dialog until animation finishes
+        document.getElementById("intro-dialog").classList.add("hidden");
+
+        // Play crash-landing animation, then show intro dialog
+        playIntroAnimation(function () {
+            refreshView();
+            state.introDialogOpen = true;
+            document.getElementById("intro-dialog").classList.remove("hidden");
+        });
     }
 
     init();
