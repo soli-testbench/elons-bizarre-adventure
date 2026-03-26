@@ -1,3 +1,11 @@
+## security-fixer — 2026-03-26T20:55:27Z
+
+- **Feedback**: getElementById returns null for 'begin-btn' and 'continue-btn', causing TypeError at startup; .agent-compose/ artifacts flagged as low-risk
+- **Actions taken**: Removed two invalid addEventListener calls on non-existent DOM IDs (begin-btn, continue-btn) in game.js; the correct elements (intro-dialog-btn, throne-dialog-btn) already had listeners bound
+- **Files changed**: game.js
+- **Tests run**: yes — node --check game.js passed (syntax valid)
+- **Outcome**: success
+
 ## implementer/hotkey-modal — 2026-03-25T15:00:00Z
 - **Items completed**: t1, t2, t3, t4, t5, q1, q2, q3, q4
 - **Tests run**: no — no test suite exists; verified server serves updated files via curl
