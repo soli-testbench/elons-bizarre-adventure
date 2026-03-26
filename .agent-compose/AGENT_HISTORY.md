@@ -1,3 +1,10 @@
+## conflict-resolver — 2026-03-26T21:37:18Z
+
+- **Conflict**: .agent-compose/current (1 region), .agent-compose/AGENT_HISTORY.md (1 region) — agent artifact files only, no code conflicts
+- **Resolution**: Accepted theirs for both agent artifact files
+- **Tests run**: no — no code conflicts, skipped per instructions
+- **Outcome**: success
+
 ## reviewer — 2026-03-26T22:00:00Z
 - **Summary**: issues fixed — removed unused `progress` parameter from `drawEmblem()` function
 - **quality_checklist**: 4 items verified (q1, q2, q3, q4 — all pass)
