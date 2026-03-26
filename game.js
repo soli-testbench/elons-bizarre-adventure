@@ -1839,8 +1839,6 @@
         callEarth();
     });
     document.getElementById("close-call-earth-dialog").addEventListener("click", closeCallEarthDialog);
-    document.getElementById("begin-btn").addEventListener("click", dismissIntroDialog);
-    document.getElementById("continue-btn").addEventListener("click", dismissThroneDialog);
     document.getElementById("build-throne-btn").addEventListener("click", function () {
         if (state.gameOver) return;
         buildMarsThrone();
