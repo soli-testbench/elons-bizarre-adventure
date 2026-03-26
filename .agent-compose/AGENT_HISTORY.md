@@ -1,3 +1,13 @@
+## implementer/main — 2026-03-26T21:30:00Z
+- **Items completed**: t1, t2, t3, t4, t5, t6, t7, q1, q2, q3, q4
+- **Tests run**: yes — node --check game.js passed, HTTP 200 smoke test passed
+- **Outcome**: success
+
+## implementer/main — 2026-03-26T21:15:00Z
+- **Items completed**: t1, t2, t3, t4, q1
+- **Tests run**: yes — node --check game.js passed, HTTP 200 smoke test passed
+- **Outcome**: success
+
 ## implementer/hotkey-modal — 2026-03-25T15:00:00Z
 - **Items completed**: t1, t2, t3, t4, t5, q1, q2, q3, q4
 - **Tests run**: no — no test suite exists; verified server serves updated files via curl
@@ -102,31 +112,9 @@
 - **Tests run**: yes — node --check game.js passed
 - **Outcome**: success
 
-## implementer/main — 2026-03-26T21:14:00Z
-- **Items completed**: t1, t2, t3, t4, t5, q1, q2, q3
-- **Tests run**: yes — node --check game.js passed, HTTP 200 smoke test passed
-- **Outcome**: success
+## conflict-resolver — 2026-03-26T21:19:28Z
 
-## simplifier — 2026-03-26T21:20:00Z
-- **Summary**: Replaced splice(0,1) with shift() and splice(length-1,1) with pop() in dust storm shrinkage logic for idiomatic JS
-- **Tests run**: yes — node --check game.js passed
-- **Outcome**: success
-
-## reviewer — 2026-03-26T21:30:00Z
-- **Summary**: clean — no critical issues found across code quality, error handling, and test coverage
-- **quality_checklist**: 3 items verified (q1, q2, q3 — all pass)
-- **Outcome**: success / exit_signal: true
-
-## conflict-resolver — 2026-03-26T21:21:28Z
-
-- **Conflict**: .agent-compose/current (1 region), .agent-compose/AGENT_HISTORY.md (1 region) — agent artifact files only, no code conflicts
+- **Conflict**: .agent-compose/current and .agent-compose/AGENT_HISTORY.md — agent artifact files only, no code conflicts
 - **Resolution**: Accepted theirs for both agent artifact files
-- **Tests run**: none — no code conflicts, skipped per instructions
-- **Outcome**: success
-
-## conflict-resolver — 2026-03-26T21:27:12Z
-
-- **Conflict**: .agent-compose/current (1 region), .agent-compose/AGENT_HISTORY.md (1 region) — agent artifact files only, no code conflicts
-- **Resolution**: Accepted theirs for both agent artifact files
-- **Tests run**: none — no code conflicts, skipped per instructions
+- **Tests run**: no — no code conflicts, skipped per instructions
 - **Outcome**: success
