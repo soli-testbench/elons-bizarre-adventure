@@ -1777,6 +1777,9 @@
     canvas.addEventListener("click", function (e) {
         if (state.introAnimationPlaying) return;
         if (state.introDialogOpen) return;
+        if (state.callEarthDialogOpen) return;
+        if (state.throneDialogOpen) return;
+        if (state.hotkeyModalOpen) return;
         const tile = getTileFromClick(e);
         if (!tile) return;
 
@@ -2255,7 +2258,6 @@
         state.contactedEarth = false;
         state.marsThronePlaced = false;
         state.logs = [];
-        state.contactedEarth = false;
         state.commDishesUsedThisTurn = [];
         state.callEarthDialogOpen = false;
         state.throneDialogOpen = false;
