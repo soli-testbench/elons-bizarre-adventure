@@ -1430,7 +1430,7 @@
             state.gameOver = true;
             var msgEl = document.getElementById("throne-dialog-message");
             var btnEl = document.getElementById("throne-dialog-btn");
-            msgEl.textContent = "Game Over";
+            msgEl.textContent = "Elon's bones will sit on the Mars Throne forever. Game Over";
             btnEl.textContent = "Restart";
             addLog("Elon has perished on the Mars Throne. Game Over.", "victory");
             refreshView();
