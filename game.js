@@ -734,59 +734,6 @@
         }
     }
 
-    function getCommDishRevealedTiles() {
-        var revealed = {};
-        for (var i = 0; i < state.structures.length; i++) {
-            var s = state.structures[i];
-            if (s.type !== "comm_dish") continue;
-            // BFS from the comm dish up to 5 tiles
-            var visited = {};
-            var queue = [{ row: s.row, col: s.col, dist: 0 }];
-            visited[s.row + "," + s.col] = true;
-            while (queue.length > 0) {
-                var current = queue.shift();
-                // Check if this tile has rocks
-                if (isInBounds(current.row, current.col)) {
-                    var tile = state.map[current.row][current.col];
-                    if (tile.resource === "rocks") {
-                        revealed[current.row + "," + current.col] = true;
-                    }
-                }
-                if (current.dist >= 5) continue;
-                for (var dr = -1; dr <= 1; dr++) {
-                    for (var dc = -1; dc <= 1; dc++) {
-                        if (dr === 0 && dc === 0) continue;
-                        var nr = current.row + dr;
-                        var nc = current.col + dc;
-                        var key = nr + "," + nc;
-                        if (isInBounds(nr, nc) && !visited[key]) {
-                            visited[key] = true;
-                            queue.push({ row: nr, col: nc, dist: current.dist + 1 });
-                        }
-                    }
-                }
-            }
-        }
-        return revealed;
-    }
-
-    function drawCommDishOverlay(revealedTiles) {
-        for (var key in revealedTiles) {
-            var parts = key.split(",");
-            var r = parseInt(parts[0], 10);
-            var c = parseInt(parts[1], 10);
-            var tx = c * TILE_SIZE;
-            var ty = r * TILE_SIZE;
-            // Subtle cyan border overlay
-            ctx.strokeStyle = "rgba(0, 255, 220, 0.45)";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(tx + 1, ty + 1, TILE_SIZE - 2, TILE_SIZE - 2);
-            // Faint fill
-            ctx.fillStyle = "rgba(0, 255, 220, 0.08)";
-            ctx.fillRect(tx, ty, TILE_SIZE, TILE_SIZE);
-        }
-    }
-
     function render() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -796,10 +743,6 @@
                 drawTile(state.map[row][col]);
             }
         }
-
-        // Draw Comm Dish rock reveal overlay
-        var revealedTiles = getCommDishRevealedTiles();
-        drawCommDishOverlay(revealedTiles);
 
         // Draw structures
         for (var i = 0; i < state.structures.length; i++) {
