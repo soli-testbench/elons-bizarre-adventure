@@ -91,7 +91,7 @@
         throneDialogOpen: false,
         throneDialogStep: 0,
         introDialogOpen: true,
-        introAnimationPlaying: false,
+        introAnimationPlaying: true,
     };
 
     function refreshView() {
