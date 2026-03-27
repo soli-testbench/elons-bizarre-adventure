@@ -806,7 +806,7 @@
             }
         }
 
-        // Hide the entire action panel while the intro animation or dialog is active
+        // Hide the action panel while the intro animation or dialog is active
         var actionPanel = document.getElementById("action-panel");
         if (state.introDialogOpen || state.introAnimationPlaying) {
             actionPanel.style.display = "none";
