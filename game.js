@@ -806,9 +806,9 @@
             }
         }
 
-        // Hide the entire action panel while the intro dialog is open
+        // Hide the entire action panel while the intro animation or dialog is active
         var actionPanel = document.getElementById("action-panel");
-        if (state.introDialogOpen) {
+        if (state.introDialogOpen || state.introAnimationPlaying) {
             actionPanel.style.display = "none";
         } else {
             actionPanel.style.display = "";
@@ -1271,6 +1271,7 @@
     function dismissIntroDialog() {
         state.introDialogOpen = false;
         document.getElementById("intro-dialog").classList.add("hidden");
+        refreshView();
     }
 
     function dismissThroneDialog() {
@@ -1980,6 +1981,7 @@
     document.getElementById("intro-dialog-btn").addEventListener("click", function () {
         state.introDialogOpen = false;
         document.getElementById("intro-dialog").classList.add("hidden");
+        refreshView();
     });
 
     // Keyboard controls
@@ -2545,8 +2547,9 @@
         addLog("Elon has crash-landed on Mars!", "turn");
         addLog("--- Turn 1 ---", "turn");
 
-        // Hide intro dialog until animation finishes
+        // Hide intro dialog and action panel until animation finishes
         document.getElementById("intro-dialog").classList.add("hidden");
+        updateUI();
 
         // Play crash-landing animation, then show intro dialog
         playIntroAnimation(function () {
